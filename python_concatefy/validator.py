@@ -1,12 +1,16 @@
 import ast
 from typing import override
 
+IGNORED_GLOBAL_NAMES = set(["_"])
+
 
 def validate(tree: ast.Module, known_globals: set[str]):
     global_names: set[str] = set()
 
     def add_global_name[T: ast.AST](node: T, names: list[str]) -> T | None:
         for name in names:
+            if name in IGNORED_GLOBAL_NAMES:
+                continue
             if name not in global_names:
                 global_names.add(name)
             elif name in known_globals:
