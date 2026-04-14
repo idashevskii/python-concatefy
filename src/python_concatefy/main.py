@@ -15,6 +15,7 @@ def main() -> int:
     _ = parser.add_argument("--root", type=str, help="App Root directory")
     _ = parser.add_argument("--entry", type=str, help="Entry script relatively to root")
     _ = parser.add_argument("--dist", type=str, help="Destination file")
+    _ = parser.add_argument("--globals", type=str, help="Comma separated global names safe to delete")
     args = parser.parse_args()
 
     print(args)

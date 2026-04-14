@@ -4,10 +4,13 @@ Parses arguments and dispatches to services.
 """
 
 import argparse
+import logging
 
 from todo_app.services.todo_service import TodoService
 from todo_app.views.renderer import Renderer
 from todo_app.exceptions import TodoError, TodoNotFoundError
+
+logger = logging.getLogger(__name__)
 
 
 class CLI:

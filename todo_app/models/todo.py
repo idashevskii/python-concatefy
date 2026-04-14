@@ -4,7 +4,10 @@ Data models for the Todo application.
 
 from dataclasses import dataclass, field
 from datetime import datetime
+import logging
 from typing import override
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

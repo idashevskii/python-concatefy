@@ -3,9 +3,12 @@ Presentation Layer.
 Handles formatting and printing to the console.
 """
 
+import logging
 import sys
 from todo_app.models.todo import TodoItem
 from todo_app.config import Config
+
+logger = logging.getLogger(__name__)
 
 
 class Renderer:
