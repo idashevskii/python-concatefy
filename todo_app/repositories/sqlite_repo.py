@@ -2,8 +2,8 @@
 SQLite Implementation of the Todo Repository.
 """
 
-import sqlite3
-from typing import override
+import sqlite3 as sq
+from typing import override, cast
 from datetime import datetime
 
 from todo_app.repositories.interface import TodoRepository
@@ -18,10 +18,10 @@ class SqliteTodoRepository(TodoRepository):
         self.db_path: str = db_path
         self._init_db()
 
-    def _get_connection(self) -> sqlite3.Connection:
+    def _get_connection(self) -> sq.Connection:
         """Get a database connection with row factory."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
+        conn = sq.connect(self.db_path)
+        conn.row_factory = sq.Row
         return conn
 
     def _init_db(self) -> None:
@@ -40,17 +40,17 @@ class SqliteTodoRepository(TodoRepository):
                 """
                 )
                 conn.commit()
-        except sqlite3.Error as e:
+        except sq.Error as e:
             raise DatabaseError(f"Failed to initialize database: {e}")
 
-    def _row_to_model(self, row: sqlite3.Row) -> TodoItem:
+    def _row_to_model(self, row: sq.Row) -> TodoItem:
         """Convert a DB row to a TodoItem model."""
         return TodoItem(
-            id=row["id"],  # pyright: ignore[reportAny]
-            title=row["title"],  # pyright: ignore[reportAny]
-            completed=bool(row["completed"]),  # pyright: ignore[reportAny]
+            id=cast(int, row["id"]),
+            title=cast(str, row["title"]),
+            completed=bool(cast(str, row["completed"])),
             created_at=datetime.strptime(
-                row["created_at"], "%Y-%m-%d %H:%M:%S.%f"  # pyright: ignore[reportAny]
+                cast(str, row["created_at"]), "%Y-%m-%d %H:%M:%S.%f"
             ),
         )
 
@@ -70,7 +70,7 @@ class SqliteTodoRepository(TodoRepository):
                 conn.commit()
                 item.id = cursor.lastrowid
                 return item
-        except sqlite3.Error as e:
+        except sq.Error as e:
             raise DatabaseError(f"Failed to add todo: {e}")
 
     @override
@@ -80,10 +80,10 @@ class SqliteTodoRepository(TodoRepository):
                 cursor = conn.cursor()
                 _ = cursor.execute("SELECT * FROM todos ORDER BY created_at DESC")
                 return [
-                    self._row_to_model(row)  # pyright: ignore[reportAny]
-                    for row in cursor.fetchall()  # pyright: ignore[reportAny]
+                    self._row_to_model(row)
+                    for row in cast(list[sq.Row], cursor.fetchall())
                 ]
-        except sqlite3.Error as e:
+        except sq.Error as e:
             raise DatabaseError(f"Failed to fetch todos: {e}")
 
     @override
@@ -92,13 +92,9 @@ class SqliteTodoRepository(TodoRepository):
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 _ = cursor.execute("SELECT * FROM todos WHERE id = ?", (item_id,))
-                row = cursor.fetchone()  # pyright: ignore[reportAny]
-                return (
-                    self._row_to_model(row)  # pyright: ignore[reportAny]
-                    if row
-                    else None
-                )
-        except sqlite3.Error as e:
+                row = cast(sq.Row, cursor.fetchone())
+                return self._row_to_model(row) if row else None
+        except sq.Error as e:
             raise DatabaseError(f"Failed to fetch todo: {e}")
 
     @override
@@ -116,7 +112,7 @@ class SqliteTodoRepository(TodoRepository):
                 if cursor.rowcount == 0:
                     raise TodoNotFoundError(f"Todo with ID {item.id} not found")
                 conn.commit()
-        except sqlite3.Error as e:
+        except sq.Error as e:
             raise DatabaseError(f"Failed to update todo: {e}")
 
     @override
@@ -128,5 +124,5 @@ class SqliteTodoRepository(TodoRepository):
                 if cursor.rowcount == 0:
                     raise TodoNotFoundError(f"Todo with ID {item_id} not found")
                 conn.commit()
-        except sqlite3.Error as e:
+        except sq.Error as e:
             raise DatabaseError(f"Failed to delete todo: {e}")

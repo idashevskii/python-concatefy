@@ -31,7 +31,7 @@ To concatenate your project files, run the module from the root of your project.
 
 ### Basic Command
 ```bash
-python -m src.python_concatefy.main --root ./target/root --entry ./entry.py --dist ./dist/app.py --globals logger
+python -m python_concatefy.main --root ./target/root --entry ./entry.py --dist ./dist/app.py --globals logger
 ```
 
 ### CLI Arguments
@@ -56,7 +56,7 @@ python -m todo_app.main
 ### 2. Concatenate the Demo App
 Bundle the demo app into a single file:
 ```bash
-python -m src.python_concatefy.main --root . --entry todo_app/main.py --dist ./dist/todo.py --globals logger
+python -m python_concatefy.main --root . --entry todo_app/main.py --dist ./dist/todo.py --globals logger
 ```
 
 ### 3. Run the Bundled App
@@ -72,20 +72,26 @@ Due to the nature of concatenating files into a single namespace, please adhere 
 1.  **Unique Global Names**: All global variables, functions, and class names across all files must be unique.
     *   *Reason*: Files are merged into a single scope.
     *   *Exception*: You can specify explicit exceptions to be dropped during merging (e.g., `logger` instances).
-2.  **No `__all__` Support**: The `__all__` variable is ignored during concatenation.
+2.  **Import Handling**: Relative imports are resolved based on the `--root` path. Circular imports may cause issues.
+3.  **__all__**: The `__all__` variable is ignored during concatenation.
     *   *Impact*: You cannot control `from module import *` behavior in the output.
-3.  **Import Handling**: Relative imports are resolved based on the `--root` path. Circular imports may cause issues.
+4.  **Local Imports**: Only global (top level) imports are supported.
+5.  **Import Aliases**: Constructions like `import ... as ...` are not supported.
+6.  **Module Docstrings**: Module Docstrings are removed from result file
+7.  **Comments**: All comments are stripped.
+8.  **Dot Imports**: Relative imports using dots are not supported.
 
 ## 🛠 Development
 
 ### Project Structure
 ```text
 .
-├── src/
-│   └── python_concatefy/
-│       └── main.py       # Tool entry point
+├── 
+│   python_concatefy/
+│   └── main.py           # Tool entry point
 ├── todo_app/             # Demo application
 │   └── main.py
+├── tests/                # Test cases
 ├── dist/                 # Output directory (gitignored)
 └── README.md
 ```
@@ -101,7 +107,7 @@ Contributions are welcome! Please follow these steps:
 
 1.  Fork the repository.
 2.  Create a feature branch (`git checkout -b feature/amazing-feature`).
-3.  Commit your changes (`git commit -m 'Add some amazing-feature'`).
+3.  Commit your changes (`git commit -m 'Add some amazing feature'`).
 4.  Push to the branch (`git push origin feature/amazing-feature`).
 5.  Open a Pull Request.
 

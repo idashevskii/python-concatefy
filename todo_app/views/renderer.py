@@ -3,8 +3,7 @@ Presentation Layer.
 Handles formatting and printing to the console.
 """
 
-import logging
-import sys
+import logging, sys
 from todo_app.models.todo import TodoItem
 from todo_app.config import Config
 

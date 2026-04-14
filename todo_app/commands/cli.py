@@ -5,6 +5,7 @@ Parses arguments and dispatches to services.
 
 import argparse
 import logging
+from typing import cast
 
 from todo_app.services.todo_service import TodoService
 from todo_app.views.renderer import Renderer
@@ -50,34 +51,31 @@ class CLI:
         parser = self.create_parser()
         parsed_args = parser.parse_args(args)
 
-        if not parsed_args.command:  # pyright: ignore[reportAny]
+        cmd = cast(str, parsed_args.command)
+        if not cmd:
             parser.print_help()
             return 0
 
         try:
-            if parsed_args.command == "add":  # pyright: ignore[reportAny]
-                item = self.service.create_todo(
-                    parsed_args.title  # pyright: ignore[reportAny]
-                )
+            if cmd == "add":
+                title = cast(str, parsed_args.title)
+                item = self.service.create_todo(title)
                 self.renderer.print_success(f"Added todo #{item.id}: {item.title}")
 
-            elif parsed_args.command == "list":  # pyright: ignore[reportAny]
-                items = self.service.list_todos(
-                    show_completed=not parsed_args.pending  # pyright: ignore[reportAny]
-                )
+            elif cmd == "list":
+                pending = cast(bool, parsed_args.pending)
+                items = self.service.list_todos(show_completed=not pending)
                 self.renderer.print_todos(items)
 
-            elif parsed_args.command == "done":  # pyright: ignore[reportAny]
-                item = self.service.complete_todo(
-                    parsed_args.id  # pyright: ignore[reportAny]
-                )
+            elif cmd == "done":
+                id = cast(int, parsed_args.id)
+                item = self.service.complete_todo(id)
                 self.renderer.print_success(f"Marked todo #{item.id} as completed")
 
-            elif parsed_args.command == "delete":  # pyright: ignore[reportAny]
-                self.service.delete_todo(parsed_args.id)  # pyright: ignore[reportAny]
-                self.renderer.print_success(
-                    f"Deleted todo #{parsed_args.id}"  # pyright: ignore[reportAny]
-                )
+            elif cmd == "delete":
+                id = cast(int, parsed_args.id)
+                self.service.delete_todo(id)
+                self.renderer.print_success(f"Deleted todo #{id}")
 
             return 0
 
