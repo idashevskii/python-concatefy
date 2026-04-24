@@ -14,9 +14,9 @@ def main() -> int:
         prog="python_concatefy",
         description="Combining python applications into a single file python script",
     )
-    _ = parser.add_argument("--root", type=str, help="App Root directory")
-    _ = parser.add_argument("--entry", type=str, help="Entry script relatively to root")
-    _ = parser.add_argument("--dist", type=str, help="Destination file")
+    _ = parser.add_argument("--root", type=str, help="App Root directory", required=True)
+    _ = parser.add_argument("--entry", type=str, help="Entry script relatively to root", required=True)
+    _ = parser.add_argument("--dist", type=str, help="Destination file", required=True)
     _ = parser.add_argument(
         "--globals",
         type=str,
@@ -24,6 +24,9 @@ def main() -> int:
         default="",
     )
     args = parser.parse_args()
+    if args.root is None:  # pyright: ignore[reportAny]
+        parser.print_help()
+        sys.exit(1)
 
     process(
         root_dir=args.root,  # pyright: ignore[reportAny]
